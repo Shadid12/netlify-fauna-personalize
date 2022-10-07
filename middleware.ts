@@ -1,13 +1,7 @@
 import type { NextRequest } from "next/server";
 import { MiddlewareRequest } from "@netlify/next";
-import faunadb from "faunadb";
+import { q, getClient } from "./db";
 
-const q = faunadb.query;
-
-const client = new faunadb.Client({
-  secret: 'fnAEyOigRHAAId4RkUGJ8jqf5zmiDhw8B6ccQKwn',
-  domain: 'db.fauna.com',
-})
 
 export async function middleware(nextRequest: NextRequest) {
   const pathname = nextRequest.nextUrl.pathname;
@@ -19,10 +13,10 @@ export async function middleware(nextRequest: NextRequest) {
       q.Paginate(q.Documents(q.Collection('Pets'))),
       q.Lambda(x => q.Get(x))
     )
+    console.log('--->', nextRequest?.geo?.country);
+    const client = getClient(nextRequest?.geo?.city);
 
-    const dbresponse = await client.query(expr);
-
-    console.log('--->', dbresponse);
+    // const dbresponse = await client.query(expr);
     // Unlike NextResponse.next(), MiddlewareRequest.next() actually sends the request to the origin
     // So we can grab the response and transform it!
     const response = await middlewareRequest.next();
