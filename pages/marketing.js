@@ -28,7 +28,7 @@ export default function Marketing({message, promotion}) {
         {hydrated && promotion ? (
           <div className={styles.wrap}>
             { promotion.map((promo) => (
-              <div key={promo.ref.id}>
+              <div key={promo.ref.id} className={styles.item}>
                 <h2>{promo.data.title}</h2>
                 <img className={styles.img} src={promo.data.img} />
               </div>
