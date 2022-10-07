@@ -1,6 +1,6 @@
 import type { NextRequest } from "next/server";
 import { MiddlewareRequest } from "@netlify/next";
-import { q, getClient } from "./db";
+import { getClient, q } from "./db";
 
 
 export async function middleware(nextRequest: NextRequest) {
@@ -9,14 +9,6 @@ export async function middleware(nextRequest: NextRequest) {
   const middlewareRequest = new MiddlewareRequest(nextRequest);
 
   if (pathname.startsWith("/marketing")) {
-    const expr = q.Map(
-      q.Paginate(q.Documents(q.Collection('Pets'))),
-      q.Lambda(x => q.Get(x))
-    )
-    console.log('--->', nextRequest?.geo?.country);
-    const client = getClient(nextRequest?.geo?.city);
-
-    // const dbresponse = await client.query(expr);
     // Unlike NextResponse.next(), MiddlewareRequest.next() actually sends the request to the origin
     // So we can grab the response and transform it!
     const response = await middlewareRequest.next();
@@ -27,6 +19,17 @@ export async function middleware(nextRequest: NextRequest) {
     response.replaceText("#message", message);
     // Transform the response props
     response.setPageProp("message", message);
+
+    // Send Customized Promotions
+    const client = getClient(nextRequest?.geo?.country);
+    const promotionResponse = await client.query(
+      q.Map(
+        q.Paginate(q.Documents(q.Collection('Promotion'))),
+        q.Lambda(x => q.Get(x))
+      )
+    ) as any;
+    response.setPageProp("promotion", promotionResponse.data);
+
 
     return response;
   }

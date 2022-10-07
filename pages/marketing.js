@@ -1,4 +1,14 @@
 import * as React from "react";
+import styles from "../styles/Home.module.css";
+
+const useHydrated = () => {
+  const [hydrated, setHydrated] = React.useState(false);
+  React.useEffect(() => {
+    setHydrated(true)
+  }, []);
+
+  return hydrated;
+}
 
 export async function getStaticProps() {
   return {
@@ -8,11 +18,24 @@ export async function getStaticProps() {
   };
 }
 
-export default function Marketing({message}) {
+export default function Marketing({message, promotion}) {
+  const hydrated = useHydrated();
   return (
-    <div>
-      <h1>Marketing Page </h1>
+    <div className={styles.container}>
+      <h1>Landing Page</h1>
       <p id="message">{message}</p>
+      <div>
+        {hydrated && promotion ? (
+          <div className={styles.wrap}>
+            { promotion.map((promo) => (
+              <div key={promo.ref.id}>
+                <h2>{promo.data.title}</h2>
+                <img className={styles.img} src={promo.data.img} />
+              </div>
+            ))}
+          </div>
+        ) : <p>No promo for me</p>}
+      </div>
     </div>
   );
 }
