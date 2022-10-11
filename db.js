@@ -12,6 +12,5 @@ export const getClient = (region) => {
       domain: 'db.eu.fauna.com',
     }
   }
-  console.log('Cong', config);
   return new faunadb.Client(config)
 };
